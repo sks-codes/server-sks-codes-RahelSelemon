@@ -25,14 +25,6 @@ import java.util.Map;
  */
 public class ViewCSVHandler implements Route {
 
-  List<List<String>> csv;
-  boolean loadSuccess = false;
-  public ViewCSVHandler(Server s){
-    if (!s.getParsedCSV().isEmpty()){
-      csv = s.getParsedCSV();
-      loadSuccess = true;
-    }
-  }
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
    * the unordered set of recipe cards.
@@ -53,7 +45,7 @@ public class ViewCSVHandler implements Route {
     Map<String, String> responseMap = new HashMap<>();
 
 
-    if (!loadSuccess) {
+    if (Server.getParsedCSV().isEmpty()){
       responseMap.put("type", "error");
       responseMap.put("error_type", "missing_parameter");
       responseMap.put("error_arg", "csv");
@@ -63,7 +55,7 @@ public class ViewCSVHandler implements Route {
     // Generate the reply
     responseMap.put("type", "success");
     List<String> jsonList = new ArrayList<String>();
-    for (List<String> strings : csv) {
+    for (List<String> strings : Server.getParsedCSV()) {
       jsonList.add(adapter2.toJson(strings));
     }
     responseMap.put("data", adapter2.toJson(jsonList));

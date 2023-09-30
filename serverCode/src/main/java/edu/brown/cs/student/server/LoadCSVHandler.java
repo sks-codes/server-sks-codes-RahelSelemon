@@ -25,9 +25,7 @@ public class LoadCSVHandler implements Route {
   Server currServer;
   CSVParser csv;
   String filepath;
-  public LoadCSVHandler(Server s){
-    currServer = s;
-  }
+
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
    * the unordered set of recipe cards.
@@ -41,7 +39,7 @@ public class LoadCSVHandler implements Route {
   public Object handle(Request request, Response response) throws Exception {
     filepath = request.queryParams("filepath");
     csv = new CSVParser(filepath, false, new ListOfStringsCreator());
-    currServer.setParsedCSV(csv.parse());
+    Server.setParsedCSV(csv.parse());
     // Prepare to send a reply
     Moshi moshi = new Moshi.Builder().build();
     Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);

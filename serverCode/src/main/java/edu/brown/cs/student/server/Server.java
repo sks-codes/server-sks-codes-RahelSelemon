@@ -18,14 +18,11 @@ import java.util.HashSet;
  * more functionality classes, etc. we could make sure they all had the same shared state.
  */
 public class Server {
-  List<List<String>> parsedCSV = new ArrayList<List<String>>();
-  public Server(){
-    parsedCSV = new ArrayList<List<String>>();
-  }
-  public List<List<String>> getParsedCSV(){
+  public static List<List<String>> parsedCSV = new ArrayList<List<String>>();
+  public static List<List<String>> getParsedCSV(){
     return parsedCSV;
   }
-  public void setParsedCSV(List<List<String>> newParsedCSV){
+  public static void setParsedCSV(List<List<String>> newParsedCSV){
     parsedCSV = newParsedCSV;
   }
   public static void main(String[] args) {
@@ -56,9 +53,9 @@ public class Server {
     // Setting up the handler for the GET /order and /mock endpoints
     //Spark.get("order", new OrderHandler(menu));
     //Spark.get("mock", new MockHandler());
-    Server s = new Server();
-    Spark.get("loadcsv", new LoadCSVHandler(s));
-    Spark.get("viewcsv", new ViewCSVHandler(s));
+
+    Spark.get("loadcsv", new LoadCSVHandler());
+    Spark.get("viewcsv", new ViewCSVHandler());
     Spark.init();
     Spark.awaitInitialization();
 
