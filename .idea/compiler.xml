@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="s0" />
         <module name="moshi" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="s0" target="17" />
       <module name="src" target="17" />
     </bytecodeTargetLevel>
   </component>
