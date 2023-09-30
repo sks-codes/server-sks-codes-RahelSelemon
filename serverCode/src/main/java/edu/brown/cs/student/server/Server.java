@@ -3,6 +3,9 @@ package edu.brown.cs.student.server;
 import static spark.Spark.after;
 
 import edu.brown.cs.student.parser.CSVParser;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import spark.Filter;
 import spark.Spark;
 import java.util.HashSet;
@@ -15,6 +18,16 @@ import java.util.HashSet;
  * more functionality classes, etc. we could make sure they all had the same shared state.
  */
 public class Server {
+  List<List<String>> parsedCSV = new ArrayList<List<String>>();
+  public Server(){
+    parsedCSV = new ArrayList<List<String>>();
+  }
+  public List<List<String>> getParsedCSV(){
+    return parsedCSV;
+  }
+  public void setParsedCSV(List<List<String>> newParsedCSV){
+    parsedCSV = newParsedCSV;
+  }
   public static void main(String[] args) {
     int port = 2323;
     Spark.port(port);
@@ -43,11 +56,9 @@ public class Server {
     // Setting up the handler for the GET /order and /mock endpoints
     //Spark.get("order", new OrderHandler(menu));
     //Spark.get("mock", new MockHandler());
-    LoadCSVHandler loadcsv = new LoadCSVHandler();
-    Spark.get("loadcsv", loadcsv);
-    if (loadcsv.csv != null){
-      Spark.get("viewcsv", new ViewCSVHandler(loadcsv));
-    }
+    Server s = new Server();
+    Spark.get("loadcsv", new LoadCSVHandler(s));
+    Spark.get("viewcsv", new ViewCSVHandler(s));
     Spark.init();
     Spark.awaitInitialization();
 

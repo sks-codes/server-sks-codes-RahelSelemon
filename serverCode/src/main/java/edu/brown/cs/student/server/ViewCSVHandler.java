@@ -26,8 +26,12 @@ import java.util.Map;
 public class ViewCSVHandler implements Route {
 
   List<List<String>> csv;
-  public ViewCSVHandler(LoadCSVHandler loadcsv){
-      csv = loadcsv.csv.parse();
+  boolean loadSuccess = false;
+  public ViewCSVHandler(Server s){
+    if (!s.getParsedCSV().isEmpty()){
+      csv = s.getParsedCSV();
+      loadSuccess = true;
+    }
   }
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
@@ -49,7 +53,7 @@ public class ViewCSVHandler implements Route {
     Map<String, String> responseMap = new HashMap<>();
 
 
-    if (csv == null) {
+    if (!loadSuccess) {
       responseMap.put("type", "error");
       responseMap.put("error_type", "missing_parameter");
       responseMap.put("error_arg", "csv");
