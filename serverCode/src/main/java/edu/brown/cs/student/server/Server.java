@@ -18,12 +18,13 @@ import java.util.HashSet;
  * more functionality classes, etc. we could make sure they all had the same shared state.
  */
 public class Server {
-  public static List<List<String>> parsedCSV = new ArrayList<List<String>>();
-  public static List<List<String>> getParsedCSV(){
-    return parsedCSV;
+  public static CSVParser csvParser;
+  //public static List<List<String>> parsedCSV = new ArrayList<List<String>>();
+  public static CSVParser getCSVParser(){
+    return csvParser;
   }
-  public static void setParsedCSV(List<List<String>> newParsedCSV){
-    parsedCSV = newParsedCSV;
+  public static void setCsvParser(CSVParser newCsvParser){
+    csvParser = newCsvParser;
   }
   public static void main(String[] args) {
     int port = 2323;
@@ -56,6 +57,7 @@ public class Server {
 
     Spark.get("loadcsv", new LoadCSVHandler());
     Spark.get("viewcsv", new ViewCSVHandler());
+    Spark.get("searchcsv", new SearchCSVHandler());
     Spark.init();
     Spark.awaitInitialization();
 

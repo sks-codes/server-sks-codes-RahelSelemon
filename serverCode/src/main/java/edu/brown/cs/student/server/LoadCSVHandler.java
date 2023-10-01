@@ -38,8 +38,7 @@ public class LoadCSVHandler implements Route {
   @Override
   public Object handle(Request request, Response response) throws Exception {
     filepath = request.queryParams("filepath");
-    csv = new CSVParser(filepath, false, new ListOfStringsCreator());
-    Server.setParsedCSV(csv.parse());
+    Server.setCsvParser(new CSVParser(filepath, false, new ListOfStringsCreator()));
     // Prepare to send a reply
     Moshi moshi = new Moshi.Builder().build();
     Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);

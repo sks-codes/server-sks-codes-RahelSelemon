@@ -3,6 +3,7 @@ package edu.brown.cs.student.server;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import edu.brown.cs.student.searcher.*;
 import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
@@ -21,7 +22,7 @@ import java.util.Map;
  * no Json body, and returns a Json object in reply. The responses are more complex, but this should serve as a reference.
  *
  */
-public class ViewCSVHandler implements Route {
+public class SearchCSVHandler implements Route {
 
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
@@ -42,11 +43,25 @@ public class ViewCSVHandler implements Route {
     JsonAdapter<List<String>> adapter2 = moshi.adapter(listString);
     Map<String, String> responseMap = new HashMap<>();
 
-    List<List<String>> parsedCSV = Server.getCSVParser().parse();
+    String searchString = request.queryParams("find");
+    var searchCol = request.queryParams("col");
+    SearchCSV searcher;
+    if (searchCol == null){
+      searcher = new SearchCSV(Server.getCSVParser(), searchString);
+    }
+    else{
+      searcher = new SearchCSV(Server.getCSVParser(), searchString, searchCol);
+    }
+    List<Location> found = searcher.search();
+    List<List<String>> foundRows = new ArrayList<List<String>>();
+    List<List<String>> parsedCSV = Server.getCSVParser().get_parsed_strings();
+    for (Location item : found){
+      foundRows.add(parsedCSV.get(item.getRow_ind()));
+    }
 
-    if (parsedCSV.isEmpty()){
+    if (foundRows.isEmpty()){
       responseMap.put("type", "error");
-      responseMap.put("error_type", "missing_parameter");
+      responseMap.put("error_type", "RowsNotFound");
       responseMap.put("error_arg", "csv");
       return adapter1.toJson(responseMap);
     }
@@ -54,7 +69,7 @@ public class ViewCSVHandler implements Route {
     // Generate the reply
     responseMap.put("type", "success");
     List<String> jsonList = new ArrayList<String>();
-    for (List<String> strings : parsedCSV) {
+    for (List<String> strings : foundRows) {
       jsonList.add(adapter2.toJson(strings));
     }
     responseMap.put("data", adapter2.toJson(jsonList));
