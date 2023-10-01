@@ -46,11 +46,23 @@ public class SearchCSVHandler implements Route {
     String searchString = request.queryParams("find");
     var searchCol = request.queryParams("col");
     SearchCSV searcher;
+    if (searchString == null){
+      responseMap.put("type", "error");
+      responseMap.put("error_type", "error_bad_request");
+      responseMap.put("error_arg", "csv");
+      return adapter1.toJson(responseMap);
+    }
     if (searchCol == null){
       searcher = new SearchCSV(Server.getCSVParser(), searchString);
     }
     else{
-      searcher = new SearchCSV(Server.getCSVParser(), searchString, searchCol);
+      try {
+        int col_num = Integer.parseInt(searchCol);
+        searcher = new SearchCSV(Server.getCSVParser(), searchString, col_num);
+      }
+      catch (NumberFormatException e){
+        searcher = new SearchCSV(Server.getCSVParser(), searchString, searchCol);
+      }
     }
     List<Location> found = searcher.search();
     List<List<String>> foundRows = new ArrayList<List<String>>();
@@ -60,14 +72,14 @@ public class SearchCSVHandler implements Route {
     }
 
     if (foundRows.isEmpty()){
-      responseMap.put("type", "error");
-      responseMap.put("error_type", "RowsNotFound");
+      responseMap.put("result", "error");
+      responseMap.put("error_type", "error_bad_json");
       responseMap.put("error_arg", "csv");
       return adapter1.toJson(responseMap);
     }
 
     // Generate the reply
-    responseMap.put("type", "success");
+    responseMap.put("result", "success");
     List<String> jsonList = new ArrayList<String>();
     for (List<String> strings : foundRows) {
       jsonList.add(adapter2.toJson(strings));

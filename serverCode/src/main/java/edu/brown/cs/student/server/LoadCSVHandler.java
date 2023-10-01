@@ -5,6 +5,8 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.parser.CSVParser;
 import edu.brown.cs.student.informationobjects.ListOfStringsCreator;
+import java.io.FileNotFoundException;
+import java.util.List;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -25,6 +27,7 @@ public class LoadCSVHandler implements Route {
   Server currServer;
   CSVParser csv;
   String filepath;
+  String header;
 
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
@@ -38,7 +41,7 @@ public class LoadCSVHandler implements Route {
   @Override
   public Object handle(Request request, Response response) throws Exception {
     filepath = request.queryParams("filepath");
-    Server.setCsvParser(new CSVParser(filepath, false, new ListOfStringsCreator()));
+    header = request.queryParams("header");
     // Prepare to send a reply
     Moshi moshi = new Moshi.Builder().build();
     Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);
@@ -46,14 +49,30 @@ public class LoadCSVHandler implements Route {
     Map<String, String> responseMap = new HashMap<>();
 
     if (filepath == null) {
-      responseMap.put("type", "error");
-      responseMap.put("error_type", "missing_parameter");
+      responseMap.put("result", "error");
+      responseMap.put("error_type", "error_bad_request");
       responseMap.put("error_arg", "filepath");
       return adapter.toJson(responseMap);
     }
+    boolean h = false;
+    if (header != null){
+      h = Boolean.parseBoolean(header);
+    }
+    CSVParser<List<String>> csvParser;
+    try{
+      csvParser = new CSVParser<List<String>>(filepath, h, new ListOfStringsCreator());
+    }
+    catch (FileNotFoundException e){
+      responseMap.put("result", "error");
+      responseMap.put("error_type", "error_datasource");
+      responseMap.put("error_arg", "filepath");
+      return adapter.toJson(responseMap);
+    }
+    Server.setCsvParser(csvParser);
+
 
     // Generate the reply
-    responseMap.put("type", "success");
+    responseMap.put("result", "success");
 
     responseMap.put("filepath", filepath);
 

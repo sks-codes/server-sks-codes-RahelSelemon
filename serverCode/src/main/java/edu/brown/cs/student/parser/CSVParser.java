@@ -34,13 +34,9 @@ public class CSVParser<T> {
    * @param header
    * @param gen_row
    */
-  public CSVParser(String fn, Boolean header, CreatorFromRow<T> gen_row) {
+  public CSVParser(String fn, Boolean header, CreatorFromRow<T> gen_row) throws FileNotFoundException{
     FileReader fr = null;
-    try {
-      fr = new FileReader(fn);
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    fr = new FileReader(fn);
     this.reader = new BufferedReader(fr);
     this.gen_row = gen_row;
     this.header = header;
