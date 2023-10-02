@@ -50,15 +50,6 @@ public class ViewCSVHandler implements Route {
 
     // Generate the reply
     responseMap.put("result", "success");
-    List<String> jsonList = new ArrayList<String>();
-
-    /*Type listString = Types.newParameterizedType(List.class, String.class);
-    JsonAdapter<List<String>> adapter2 = moshi.adapter(listString);
-    for (List<String> strings : parsedCSV) {
-      jsonList.add(adapter2.toJson(strings));
-    }
-    responseMap.put("data", adapter2.toJson(jsonList));*/
-
     responseMap.put("data", parsedCSV);
 
     return adapter1.toJson(responseMap);

@@ -6,6 +6,9 @@ import com.squareup.moshi.Types;
 import edu.brown.cs.student.searcher.*;
 import edu.brown.cs.student.server.APIDataSources.ACS_API;
 import edu.brown.cs.student.server.APIDataSources.APIDatasourceException;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
@@ -15,6 +18,7 @@ import spark.Route;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import spark.Spark;
 
 
 /**
