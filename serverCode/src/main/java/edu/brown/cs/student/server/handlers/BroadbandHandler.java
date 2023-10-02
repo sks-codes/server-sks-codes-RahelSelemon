@@ -3,13 +3,8 @@ package edu.brown.cs.student.server.handlers;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
-import edu.brown.cs.student.searcher.*;
 import edu.brown.cs.student.server.APIDataSources.ACS_API;
 import edu.brown.cs.student.server.APIDataSources.APIDatasourceException;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
 import spark.Response;
@@ -18,15 +13,10 @@ import spark.Route;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import spark.Spark;
 
 
 /**
- * Handler class for the soup ordering API endpoint.
- *
- * This endpoint is similar to the endpoint(s) you'll need to create for Sprint 2. It takes a basic GET request with
- * no Json body, and returns a Json object in reply. The responses are more complex, but this should serve as a reference.
- *
+ * handler for broadband endpoint
  */
 public class BroadbandHandler implements Route {
     private final ACS_API dataSource;
@@ -34,8 +24,7 @@ public class BroadbandHandler implements Route {
       this.dataSource = dataSource;
     }
   /**
-   * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
-   * the unordered set of recipe cards.
+   * shows broadband access data for specified state and county, obtained from the ACS API data
    *
    * @param request  the request to handle
    * @param response use to modify properties of the response
@@ -44,7 +33,6 @@ public class BroadbandHandler implements Route {
    */
   @Override
   public Object handle(Request request, Response response) throws Exception {
-    // Prepare to send a reply
     Moshi moshi = new Moshi.Builder().build();
     Type mapStringObject = Types.newParameterizedType(Map.class, String.class, Object.class);
     JsonAdapter<Map<String, Object>> adapter1 = moshi.adapter(mapStringObject);
@@ -53,7 +41,7 @@ public class BroadbandHandler implements Route {
     String state = request.queryParams("state");
     String county = request.queryParams("county");
 
-    if(state == null|| county == null) {
+    if(state == null|| county == null) { //if missing required state or county param
       responseMap.put("type", "error");
       responseMap.put("error_type", "missing_parameter");
       if (state == null)
@@ -62,16 +50,18 @@ public class BroadbandHandler implements Route {
         responseMap.put("error_arg", "county");
       return adapter1.toJson(responseMap);
     }
+
+    //converting param from link to real state or county name by removing underscores
     state = state.replaceAll("_", " ");
     county = county.replaceAll("_", " ");
 
     try {
-      List<String> bandwidthData = dataSource.getData(state,county);
+      List<String> broadbandData = dataSource.getData(state,county);
       responseMap.put("type", "success");
-      responseMap.put("Bandwidth", bandwidthData);
+      responseMap.put("Bandwidth", broadbandData);
       return adapter1.toJson(responseMap);
     }
-    catch (APIDatasourceException e) {
+    catch (APIDatasourceException e) { //error with retrieving desired ACS data
       responseMap.put("type", "error");
       responseMap.put("error_type", "datasource");
       responseMap.put("details", e.getMessage());
