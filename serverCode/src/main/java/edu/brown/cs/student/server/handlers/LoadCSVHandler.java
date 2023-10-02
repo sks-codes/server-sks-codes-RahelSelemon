@@ -1,10 +1,11 @@
-package edu.brown.cs.student.server;
+package edu.brown.cs.student.server.handlers;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.parser.CSVParser;
 import edu.brown.cs.student.informationobjects.ListOfStringsCreator;
+import edu.brown.cs.student.server.Server;
 import java.io.FileNotFoundException;
 import java.util.List;
 import spark.Request;

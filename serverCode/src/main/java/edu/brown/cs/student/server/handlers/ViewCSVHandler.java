@@ -1,14 +1,9 @@
-package edu.brown.cs.student.server;
+package edu.brown.cs.student.server.handlers;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
-import edu.brown.cs.student.searcher.*;
-import edu.brown.cs.student.server.APIDataSources.ACS_API;
-import edu.brown.cs.student.server.APIDataSources.APIDatasourceException;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import edu.brown.cs.student.server.Server;
 import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
@@ -18,7 +13,6 @@ import spark.Route;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import spark.Spark;
 
 
 /**
@@ -28,11 +22,7 @@ import spark.Spark;
  * no Json body, and returns a Json object in reply. The responses are more complex, but this should serve as a reference.
  *
  */
-public class BroadbandHandler implements Route {
-    private final ACS_API dataSource;
-    public BroadbandHandler(ACS_API dataSource) {
-      this.dataSource = dataSource;
-    }
+public class ViewCSVHandler implements Route {
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
    * the unordered set of recipe cards.
@@ -50,32 +40,19 @@ public class BroadbandHandler implements Route {
     JsonAdapter<Map<String, Object>> adapter1 = moshi.adapter(mapStringObject);
     Map<String, Object> responseMap = new HashMap<>();
 
-    String state = request.queryParams("state");
-    String county = request.queryParams("county");
+    List<List<String>> parsedCSV = Server.getCSVParser().parse();
 
-    if(state == null|| county == null) {
-      responseMap.put("type", "error");
-      responseMap.put("error_type", "missing_parameter");
-      if (state == null)
-        responseMap.put("error_arg", "state");
-      else
-        responseMap.put("error_arg", "county");
+    if (parsedCSV.isEmpty()){
+      responseMap.put("result", "error");
+      responseMap.put("error_type", "error_bad_request");
+      responseMap.put("error_arg", "csv");
       return adapter1.toJson(responseMap);
     }
-    state = state.replaceAll("_", " ");
-    county = county.replaceAll("_", " ");
 
-    try {
-      List<String> bandwidthData = dataSource.getData(state,county);
-      responseMap.put("type", "success");
-      responseMap.put("Bandwidth", bandwidthData);
-      return adapter1.toJson(responseMap);
-    }
-    catch (APIDatasourceException e) {
-      responseMap.put("type", "error");
-      responseMap.put("error_type", "datasource");
-      responseMap.put("details", e.getMessage());
-      return adapter1.toJson(responseMap);
-    }
+    // Generate the reply
+    responseMap.put("result", "success");
+    responseMap.put("data", parsedCSV);
+
+    return adapter1.toJson(responseMap);
   }
 }

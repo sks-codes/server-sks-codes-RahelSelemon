@@ -1,8 +1,10 @@
-package edu.brown.cs.student.server;
+package edu.brown.cs.student.server.handlers;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import edu.brown.cs.student.searcher.*;
+import edu.brown.cs.student.server.Server;
 import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
@@ -21,7 +23,8 @@ import java.util.Map;
  * no Json body, and returns a Json object in reply. The responses are more complex, but this should serve as a reference.
  *
  */
-public class ViewCSVHandler implements Route {
+public class SearchCSVHandler implements Route {
+
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
    * the unordered set of recipe cards.
@@ -39,18 +42,44 @@ public class ViewCSVHandler implements Route {
     JsonAdapter<Map<String, Object>> adapter1 = moshi.adapter(mapStringObject);
     Map<String, Object> responseMap = new HashMap<>();
 
-    List<List<String>> parsedCSV = Server.getCSVParser().parse();
-
-    if (parsedCSV.isEmpty()){
-      responseMap.put("result", "error");
+    String searchString = request.queryParams("find");
+    String searchCol = request.queryParams("col");
+    SearchCSV searcher;
+    if (searchString == null){
+      responseMap.put("type", "error");
       responseMap.put("error_type", "error_bad_request");
+      responseMap.put("error_arg", "csv");
+      return adapter1.toJson(responseMap);
+    }
+    if (searchCol == null){
+      searcher = new SearchCSV(Server.getCSVParser(), searchString);
+    }
+    else{
+      try {
+        int col_num = Integer.parseInt(searchCol);
+        searcher = new SearchCSV(Server.getCSVParser(), searchString, col_num);
+      }
+      catch (NumberFormatException e){
+        searcher = new SearchCSV(Server.getCSVParser(), searchString, searchCol);
+      }
+    }
+    List<Location> found = searcher.search();
+    List<List<String>> foundRows = new ArrayList<List<String>>();
+    List<List<String>> parsedCSV = Server.getCSVParser().get_parsed_strings();
+    for (Location item : found){
+      foundRows.add(parsedCSV.get(item.getRow_ind()));
+    }
+
+    if (foundRows.isEmpty()){
+      responseMap.put("result", "error");
+      responseMap.put("error_type", "error_bad_json");
       responseMap.put("error_arg", "csv");
       return adapter1.toJson(responseMap);
     }
 
     // Generate the reply
     responseMap.put("result", "success");
-    responseMap.put("data", parsedCSV);
+    responseMap.put("data", foundRows);
 
     return adapter1.toJson(responseMap);
   }

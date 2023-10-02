@@ -5,6 +5,10 @@ import static spark.Spark.after;
 import edu.brown.cs.student.parser.CSVParser;
 import edu.brown.cs.student.server.APIDataSources.ACS_API;
 import edu.brown.cs.student.server.APIDataSources.APIDatasourceException;
+import edu.brown.cs.student.server.handlers.BroadbandHandler;
+import edu.brown.cs.student.server.handlers.LoadCSVHandler;
+import edu.brown.cs.student.server.handlers.SearchCSVHandler;
+import edu.brown.cs.student.server.handlers.ViewCSVHandler;
 import spark.Spark;
 
 public class Server {
