@@ -1,5 +1,8 @@
 package edu.brown.cs.student.server.APIDataSources;
 
+/**
+ * class for error handling related to API datasource get and reading exceptions
+ */
 public class APIDatasourceException extends Exception {
   private final Throwable cause;
 

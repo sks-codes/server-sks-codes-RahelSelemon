@@ -18,21 +18,15 @@ import java.util.Map;
 
 
 /**
- * Handler class for the soup ordering API endpoint.
- *
- * This endpoint is similar to the endpoint(s) you'll need to create for Sprint 2. It takes a basic GET request with
- * no Json body, and returns a Json object in reply. The responses are more complex, but this should serve as a reference.
- *
+ * Handler class for the loadcsv API endpoint.
  */
 public class LoadCSVHandler implements Route {
-  Server currServer;
-  CSVParser csv;
   String filepath;
   String header;
 
   /**
-   * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
-   * the unordered set of recipe cards.
+   * loads a csv given a filepath and optionally a boolean indicating whether or not there
+   * is a header on the csv.
    *
    * @param request  the request to handle
    * @param response use to modify properties of the response
@@ -43,12 +37,13 @@ public class LoadCSVHandler implements Route {
   public Object handle(Request request, Response response) throws Exception {
     filepath = request.queryParams("filepath");
     header = request.queryParams("header");
-    // Prepare to send a reply
+
     Moshi moshi = new Moshi.Builder().build();
     Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);
     JsonAdapter<Map<String, String>> adapter = moshi.adapter(mapStringString);
     Map<String, String> responseMap = new HashMap<>();
 
+    //producing error response if no filepath is given
     if (filepath == null) {
       responseMap.put("result", "error");
       responseMap.put("error_type", "error_bad_request");
@@ -63,7 +58,7 @@ public class LoadCSVHandler implements Route {
     try{
       csvParser = new CSVParser<List<String>>(filepath, h, new ListOfStringsCreator());
     }
-    catch (FileNotFoundException e){
+    catch (FileNotFoundException e){ //If file doesn't exist
       responseMap.put("result", "error");
       responseMap.put("error_type", "error_datasource");
       responseMap.put("error_arg", "filepath");
