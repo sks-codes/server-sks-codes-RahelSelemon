@@ -53,7 +53,7 @@ public class BroadbandHandler implements Route {
     String state = request.queryParams("state");
     String county = request.queryParams("county");
 
-    if(state == null || county == null) {
+    if(state == null|| county == null) {
       responseMap.put("type", "error");
       responseMap.put("error_type", "missing_parameter");
       if (state == null)
@@ -62,9 +62,11 @@ public class BroadbandHandler implements Route {
         responseMap.put("error_arg", "county");
       return adapter1.toJson(responseMap);
     }
+    state = state.replaceAll("_", " ");
+    county = county.replaceAll("_", " ");
 
     try {
-      List<String> bandwidthData = dataSource.getData(county,state);
+      List<String> bandwidthData = dataSource.getData(state,county);
       responseMap.put("type", "success");
       responseMap.put("Bandwidth", bandwidthData);
       return adapter1.toJson(responseMap);

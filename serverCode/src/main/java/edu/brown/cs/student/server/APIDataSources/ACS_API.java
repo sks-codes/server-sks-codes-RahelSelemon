@@ -30,7 +30,7 @@ public class ACS_API {
 
   private void readInStateCodes() throws APIDatasourceException {
     try {
-      URL requestURL = new URL("https", "api.census.gov", "data/2010/dec/sf1?get=NAME&for=state:*");
+      URL requestURL = new URL("https", "api.census.gov", "/data/2010/dec/sf1?get=NAME&for=state:*");
       HttpURLConnection clientConnection = connect(requestURL);
       Moshi moshi = new Moshi.Builder().build();
       JsonAdapter<List> adapter = moshi.adapter(List.class).nonNull();
@@ -81,14 +81,14 @@ public class ACS_API {
     if (!code.isEmpty()) {
       return code;
     } else {
-      throw new APIDatasourceException("County not found.");
+      throw new APIDatasourceException("County not found!");
     }
   }
 
   private List<List<String>> readInCounties(String state) throws APIDatasourceException {
     try {
       URL requestURL = new URL("https", "api.census.gov",
-          "/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:*&in=state:*");
+          "/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:*&in=state:" + state);
       HttpURLConnection clientConnection = connect(requestURL);
       Moshi moshi = new Moshi.Builder().build();
       JsonAdapter<List> adapter = moshi.adapter(List.class).nonNull();
@@ -147,7 +147,7 @@ public class ACS_API {
       result.add("Time:" + time);
       result.add("State:" + state);
       result.add("County:" + county);
-      result.add("Data:" + adapter.toJson(data));
+      result.add("Data:" + data);
 
       return new ArrayList<>(result);
     } catch (IOException e) {
