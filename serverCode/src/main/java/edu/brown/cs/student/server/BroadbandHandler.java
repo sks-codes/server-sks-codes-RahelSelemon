@@ -4,6 +4,8 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.searcher.*;
+import edu.brown.cs.student.server.APIDataSources.ACS_API;
+import edu.brown.cs.student.server.APIDataSources.APIDatasourceException;
 import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
@@ -23,7 +25,10 @@ import java.util.Map;
  *
  */
 public class BroadbandHandler implements Route {
-
+    private final ACS_API dataSource;
+    public BroadbandHandler(ACS_API dataSource) {
+      this.dataSource = dataSource;
+    }
   /**
    * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
    * the unordered set of recipe cards.
@@ -37,15 +42,34 @@ public class BroadbandHandler implements Route {
   public Object handle(Request request, Response response) throws Exception {
     // Prepare to send a reply
     Moshi moshi = new Moshi.Builder().build();
-    Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);
-    JsonAdapter<Map<String, String>> adapter1 = moshi.adapter(mapStringString);
-    Type listString = Types.newParameterizedType(List.class, String.class);
-    JsonAdapter<List<String>> adapter2 = moshi.adapter(listString);
-    Map<String, String> responseMap = new HashMap<>();
+    Type mapStringObject = Types.newParameterizedType(Map.class, String.class, Object.class);
+    JsonAdapter<Map<String, Object>> adapter1 = moshi.adapter(mapStringObject);
+    Map<String, Object> responseMap = new HashMap<>();
 
     String state = request.queryParams("state");
     String county = request.queryParams("county");
 
-    return 1;
+    if(state == null || county == null) {
+      responseMap.put("type", "error");
+      responseMap.put("error_type", "missing_parameter");
+      if (state == null)
+        responseMap.put("error_arg", "state");
+      else
+        responseMap.put("error_arg", "county");
+      return adapter1.toJson(responseMap);
+    }
+
+    try {
+      List<String> bandwidthData = dataSource.getData(county,state);
+      responseMap.put("type", "success");
+      responseMap.put("Bandwidth", bandwidthData);
+      return adapter1.toJson(responseMap);
+    }
+    catch (APIDatasourceException e) {
+      responseMap.put("type", "error");
+      responseMap.put("error_type", "datasource");
+      responseMap.put("details", e.getMessage());
+      return adapter1.toJson(responseMap);
+    }
   }
 }

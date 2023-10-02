@@ -3,15 +3,10 @@ package edu.brown.cs.student.server;
 import static spark.Spark.after;
 
 import edu.brown.cs.student.parser.CSVParser;
+import edu.brown.cs.student.server.APIDataSources.ACS_API;
+import edu.brown.cs.student.server.APIDataSources.APIDatasourceException;
 import spark.Spark;
 
-/**
- * Top-level class for this demo. Contains the main() method which starts Spark and runs the various handlers.
- *
- * We have two endpoints in this demo. They need to share state (a menu).
- * This is a great chance to use dependency injection, as we do here with the menu set. If we needed more endpoints,
- * more functionality classes, etc. we could make sure they all had the same shared state.
- */
 public class Server {
   public static CSVParser csvParser;
   //public static List<List<String>> parsedCSV = new ArrayList<List<String>>();
@@ -33,7 +28,12 @@ public class Server {
     Spark.get("loadcsv", new LoadCSVHandler());
     Spark.get("viewcsv", new ViewCSVHandler());
     Spark.get("searchcsv", new SearchCSVHandler());
-    Spark.get("broadband", new SearchCSVHandler());
+    try {
+      ACS_API source = new ACS_API();
+      Spark.get("broadband", new BroadbandHandler(source));
+    } catch(APIDatasourceException e) {
+      Spark.get("viewcsv", new ViewCSVHandler());
+    }
     Spark.init();
     Spark.awaitInitialization();
 
