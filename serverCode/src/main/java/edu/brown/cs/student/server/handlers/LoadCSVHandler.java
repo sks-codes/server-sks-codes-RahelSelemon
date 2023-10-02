@@ -69,14 +69,10 @@ public class LoadCSVHandler implements Route {
       responseMap.put("error_arg", "filepath");
       return adapter.toJson(responseMap);
     }
+
     Server.setCsvParser(csvParser);
-
-
-    // Generate the reply
     responseMap.put("result", "success");
-
     responseMap.put("filepath", filepath);
-
     return adapter.toJson(responseMap);
   }
 }
