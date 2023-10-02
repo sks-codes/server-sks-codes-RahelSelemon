@@ -4,6 +4,9 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.searcher.*;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import spark.Request;
@@ -13,6 +16,7 @@ import spark.Route;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import spark.Spark;
 
 
 /**
@@ -23,29 +27,8 @@ import java.util.Map;
  *
  */
 public class BroadbandHandler implements Route {
-
-  /**
-   * Pick a convenient soup and make it. the most "convenient" soup is the first recipe we find in
-   * the unordered set of recipe cards.
-   *
-   * @param request  the request to handle
-   * @param response use to modify properties of the response
-   * @return response content
-   * @throws Exception This is part of the interface; we don't have to throw anything.
-   */
   @Override
   public Object handle(Request request, Response response) throws Exception {
-    // Prepare to send a reply
-    Moshi moshi = new Moshi.Builder().build();
-    Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);
-    JsonAdapter<Map<String, String>> adapter1 = moshi.adapter(mapStringString);
-    Type listString = Types.newParameterizedType(List.class, String.class);
-    JsonAdapter<List<String>> adapter2 = moshi.adapter(listString);
-    Map<String, String> responseMap = new HashMap<>();
-
-    String state = request.queryParams("state");
-    String county = request.queryParams("county");
-
-    return 1;
+    return null;
   }
 }

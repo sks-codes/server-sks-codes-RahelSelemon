@@ -36,11 +36,9 @@ public class ViewCSVHandler implements Route {
   public Object handle(Request request, Response response) throws Exception {
     // Prepare to send a reply
     Moshi moshi = new Moshi.Builder().build();
-    Type mapStringString = Types.newParameterizedType(Map.class, String.class, String.class);
-    JsonAdapter<Map<String, String>> adapter1 = moshi.adapter(mapStringString);
-    Type listString = Types.newParameterizedType(List.class, String.class);
-    JsonAdapter<List<String>> adapter2 = moshi.adapter(listString);
-    Map<String, String> responseMap = new HashMap<>();
+    Type mapStringObject = Types.newParameterizedType(Map.class, String.class, Object.class);
+    JsonAdapter<Map<String, Object>> adapter1 = moshi.adapter(mapStringObject);
+    Map<String, Object> responseMap = new HashMap<>();
 
     List<List<String>> parsedCSV = Server.getCSVParser().parse();
 
@@ -53,11 +51,7 @@ public class ViewCSVHandler implements Route {
 
     // Generate the reply
     responseMap.put("result", "success");
-    List<String> jsonList = new ArrayList<String>();
-    for (List<String> strings : parsedCSV) {
-      jsonList.add(adapter2.toJson(strings));
-    }
-    responseMap.put("data", adapter2.toJson(jsonList));
+    responseMap.put("data", parsedCSV);
 
     return adapter1.toJson(responseMap);
   }
