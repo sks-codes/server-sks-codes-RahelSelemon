@@ -32,14 +32,14 @@ public class ViewCSVHandler implements Route {
     JsonAdapter<Map<String, Object>> adapter1 = moshi.adapter(mapStringObject);
     Map<String, Object> responseMap = new HashMap<>();
 
-    List<List<String>> parsedCSV = Server.getCSVParser().parse(); //getting loaded csv
-
-    if (parsedCSV.isEmpty()){ //csv not properly loaded
+    if (Server.getCSVParser() == null){ //csv not properly loaded
       responseMap.put("result", "error");
       responseMap.put("error_type", "error_bad_request");
       responseMap.put("error_arg", "csv");
       return adapter1.toJson(responseMap);
     }
+
+    List<List<String>> parsedCSV = Server.getCSVParser().parse(); //getting loaded csv
 
     responseMap.put("result", "success");
     responseMap.put("data", parsedCSV);
