@@ -18,27 +18,36 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import okio.Buffer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import spark.Spark;
 public class IntegrationTests {
+  @BeforeAll
   public static void setupOnce() {
     // Pick an arbitrary free port
-    Spark.port(0);
+    Spark.port(2323);
     // Eliminate logger spam in console for test suite
     Logger.getLogger("").setLevel(Level.WARNING); //empty name = root
   }
     // Helping Moshi serialize Json responses
   private final Type mapStringObject = Types.newParameterizedType(Map.class, String.class, Object.class);
-  private JsonAdapter<Map<String, Object>> adapter;    public void setup() throws APIDatasourceException {
+  private JsonAdapter<Map<String, Object>> adapter;
+  @BeforeEach
+  public void setup() throws APIDatasourceException {
     ACS_API mockedSource = new MockData();
     Spark.get("broadband", new BroadbandHandler(mockedSource));
     Spark.awaitInitialization(); // don't continue until the server is listening
     Moshi moshi = new Moshi.Builder().build();
     adapter = moshi.adapter(mapStringObject);
   }
+  @AfterEach
   public void tearDown() {
     Spark.unmap("broadband");
     Spark.awaitStop();
   }
+
   private HttpURLConnection tryRequest(String apiCall) throws IOException {
     URL requestURL = new URL("http://localhost:"+ Spark.port()+"/"+apiCall);
     HttpURLConnection clientConnection = (HttpURLConnection) requestURL.openConnection();
@@ -47,8 +56,9 @@ public class IntegrationTests {
     clientConnection.connect();
     return clientConnection;
   }
+  @Test
   public void testRequestSuccessMock() throws IOException {
-    HttpURLConnection loadConnection = tryRequest("https://http://localhost:2323/broadband?state=California&county=Orange_County");
+    HttpURLConnection loadConnection = tryRequest("broadband?state=California&county=Orange_County");
     assertEquals(200, loadConnection.getResponseCode());
     Map<String, Object> body = adapter.fromJson(new Buffer().readFrom(loadConnection.getInputStream()));
     showDetailsIfError(body);
